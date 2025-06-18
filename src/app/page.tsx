@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import RatingFilter from "@/components/RatingFilter";
 import MovieCard from "@/components/MovieCard";
 import MovieDetailsDialog from "@/components/MovieDetailsDialog";
+import CountdownTimer from "@/components/Countdown";
 
 // TODO: Refactor typescript
 // TODO: Refactor fetching
@@ -19,6 +20,7 @@ export default function Home() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [selectedMovie, setSelectedMovie] = useState<number | null>(null);
+  const [showNewMovies, setShowNewMovies] = useState(false);
 
   useEffect(() => {
     fetch(
@@ -29,21 +31,26 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    fetchMovies();
+  }, [selectedGenres, minRating, page, showNewMovies]);
+
+  const fetchMovies = () => {
     const genreQuery = selectedGenres.length
       ? `&with_genres=${selectedGenres.join(",")}`
       : "";
     const ratingQuery = `&vote_average.gte=${minRating}`;
     const pageQuery = `&page=${page}`;
+    const sortQuery = showNewMovies ? "&sort_by=release_date.desc" : "";
 
     fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/discover/movie?api_key=${process.env.NEXT_PUBLIC_API_KEY}${genreQuery}${ratingQuery}${pageQuery}&include_adult=false`,
+      `${process.env.NEXT_PUBLIC_BASE_URL}/discover/movie?api_key=${process.env.NEXT_PUBLIC_API_KEY}${genreQuery}${ratingQuery}${pageQuery}${sortQuery}&include_adult=false`,
     )
       .then((res) => res.json())
       .then((data) => {
         setMovies(data.results);
         setTotalPages(data.total_pages);
       });
-  }, [selectedGenres, minRating, page]);
+  };
 
   const toggleGenre = (genreId) => {
     setSelectedGenres((prev) =>
@@ -91,6 +98,14 @@ export default function Home() {
         <div>
           <RatingFilter onChange={handleRatingChange} value={minRating} />
         </div>
+      </div>
+      <div>
+        <CountdownTimer
+          action={fetchMovies}
+          paused={!!selectedMovie}
+          isActive={showNewMovies}
+          setIsActive={setShowNewMovies}
+        />
       </div>
       <div>
         {!movies || movies.length === 0 ? (
