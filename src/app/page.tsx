@@ -27,12 +27,33 @@ export default function Home() {
       `${process.env.NEXT_PUBLIC_BASE_URL}/genre/movie/list?api_key=${process.env.NEXT_PUBLIC_API_KEY}`,
     )
       .then((res) => res.json())
-      .then((data) => setGenres(data.genres));
+      .then((data) => setGenres(data.genres))
+      .catch((err) => {
+        window.alert(`failed to fetch genres: ${err.toString()}`);
+      });
   }, []);
 
   useEffect(() => {
     fetchMovies();
   }, [selectedGenres, minRating, page, showNewMovies]);
+
+  const toggleGenre = (genreId: number) => {
+    setSelectedGenres((prev) =>
+      prev.includes(genreId)
+        ? prev.filter((id) => id !== genreId)
+        : [...prev, genreId],
+    );
+    setPage(1);
+  };
+
+  const handleRatingChange = (value: string) => {
+    setMinRating(value);
+    setPage(1);
+  };
+
+  const closeModal = () => {
+    setSelectedMovie(null);
+  };
 
   const fetchMovies = () => {
     const genreQuery = selectedGenres.length
@@ -49,32 +70,14 @@ export default function Home() {
       .then((data) => {
         setMovies(data.results);
         setTotalPages(data.total_pages);
+      })
+      .catch((err) => {
+        window.alert(`failed to fetch movies: ${err.toString()}`);
       });
   };
 
-  const toggleGenre = (genreId: number) => {
-    setSelectedGenres((prev) =>
-      prev.includes(genreId)
-        ? prev.filter((id) => id !== genreId)
-        : [...prev, genreId],
-    );
-    setPage(1);
-  };
-
-  const handleRatingChange = (value: string) => {
-    setMinRating(value);
-    setPage(1);
-  };
-
-  console.log(movies);
-  console.log(genres);
-
-  const closeModal = () => {
-    setSelectedMovie(null);
-  };
-
   return (
-    <div className="container mx-auto py-4 flex flex-col gap-4">
+    <div className="container mx-auto py-4 flex flex-col gap-4 p-4">
       {selectedMovie && (
         <MovieDetailsDialog onClose={closeModal} movieId={selectedMovie} />
       )}
@@ -111,7 +114,7 @@ export default function Home() {
         {!movies || movies.length === 0 ? (
           <p>No movies found.</p>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {movies.map((movie) => (
               <MovieCard
                 movie={movie}
@@ -129,7 +132,7 @@ export default function Home() {
           disabled={page === 1}
           onClick={() => setPage((p) => p - 1)}
         >
-          ⬅ Previous
+          Previous
         </button>
         <span>
           Page {page} of {totalPages}
@@ -139,7 +142,7 @@ export default function Home() {
           disabled={page === totalPages}
           onClick={() => setPage((p) => p + 1)}
         >
-          Next ➡
+          Next
         </button>
       </div>
     </div>
