@@ -13,10 +13,10 @@ import CountdownTimer from "@/components/Countdown";
 // TODO: Cache the genres
 
 export default function Home() {
-  const [movies, setMovies] = useState<any[] | null>(null);
-  const [genres, setGenres] = useState<any[] | null>(null);
+  const [movies, setMovies] = useState<Movie[] | null>(null);
+  const [genres, setGenres] = useState<Genre[] | null>(null);
   const [minRating, setMinRating] = useState<string>("0");
-  const [selectedGenres, setSelectedGenres] = useState([]);
+  const [selectedGenres, setSelectedGenres] = useState<number[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [selectedMovie, setSelectedMovie] = useState<number | null>(null);
@@ -52,7 +52,7 @@ export default function Home() {
       });
   };
 
-  const toggleGenre = (genreId) => {
+  const toggleGenre = (genreId: number) => {
     setSelectedGenres((prev) =>
       prev.includes(genreId)
         ? prev.filter((id) => id !== genreId)
@@ -78,7 +78,7 @@ export default function Home() {
       {selectedMovie && (
         <MovieDetailsDialog onClose={closeModal} movieId={selectedMovie} />
       )}
-      <h3>Filter by genres</h3>
+      <h3 className={"text-xl font-bold"}>Filter by genres</h3>
       <div className={"flex flex-wrap gap-4"}>
         {(genres || []).map((genre) => (
           <label key={genre.id}>
@@ -94,7 +94,7 @@ export default function Home() {
         ))}
       </div>
       <div>
-        <h3>Filter by minimum rating</h3>
+        <h3 className={"text-xl font-bold"}>Filter by minimum rating</h3>
         <div>
           <RatingFilter onChange={handleRatingChange} value={minRating} />
         </div>

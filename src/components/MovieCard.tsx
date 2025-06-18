@@ -2,13 +2,7 @@ import React from "react";
 import MoviePlaceholder from "../../public/movie_placeholder_500x750.jpg";
 
 interface MovieCardProps {
-  movie: {
-    poster_path: string;
-    title: string;
-    release_date: string;
-    vote_average: string;
-    onClick: () => void;
-  };
+  movie: Movie;
   onClick: () => void;
 }
 
