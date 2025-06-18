@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import RatingFilter from "@/components/RatingFilter";
+import MovieCard from "@/components/MovieCard";
 
 const BASE_URL = "https://api.themoviedb.org/3";
 const API_KEY = process.env.NEXT_PUBLIC_API_KEY;
@@ -10,6 +11,7 @@ const API_KEY = process.env.NEXT_PUBLIC_API_KEY;
 // TODO: Refactor fetching
 // TODO: move movies, genres queries into a server component if possible
 // TODO: Separate components into own files and folders
+// TODO: Cache the genres
 
 export default function Home() {
   const [movies, setMovies] = useState<any[] | null>(null);
@@ -88,14 +90,11 @@ export default function Home() {
         {!movies || movies.length === 0 ? (
           <p>No movies found.</p>
         ) : (
-          <ul>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {movies.map((movie) => (
-              <li key={movie.id}>
-                <strong>{movie.title}</strong> (
-                {movie.release_date?.slice(0, 4)})
-              </li>
+              <MovieCard movie={movie} key={movie.id} />
             ))}
-          </ul>
+          </div>
         )}
       </div>
     </div>
