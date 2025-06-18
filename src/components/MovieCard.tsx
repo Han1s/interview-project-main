@@ -1,14 +1,18 @@
 import React from "react";
 import MoviePlaceholder from "../../public/movie_placeholder_500x750.jpg";
 
-interface MovieProps {
-  poster_path: string;
-  title: string;
-  release_date: string;
-  vote_average: string;
+interface MovieCardProps {
+  movie: {
+    poster_path: string;
+    title: string;
+    release_date: string;
+    vote_average: string;
+    onClick: () => void;
+  };
+  onClick: () => void;
 }
 
-const MovieCard = ({ movie }: { movie: MovieProps }) => {
+const MovieCard = ({ movie, onClick }: MovieCardProps) => {
   const posterUrl = movie.poster_path
     ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
     : MoviePlaceholder.src;
@@ -18,7 +22,7 @@ const MovieCard = ({ movie }: { movie: MovieProps }) => {
     : "N/A";
 
   return (
-    <div className="card w-64 shadow-xl">
+    <div className="card w-64 shadow-xl cursor-pointer" onClick={onClick}>
       <figure>
         <img src={posterUrl} alt={movie.title} className="h-96 object-cover" />
       </figure>

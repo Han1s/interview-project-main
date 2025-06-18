@@ -3,9 +3,7 @@
 import { useEffect, useState } from "react";
 import RatingFilter from "@/components/RatingFilter";
 import MovieCard from "@/components/MovieCard";
-
-const BASE_URL = "https://api.themoviedb.org/3";
-const API_KEY = process.env.NEXT_PUBLIC_API_KEY;
+import MovieDetailsDialog from "@/components/MovieDetailsDialog";
 
 // TODO: Refactor typescript
 // TODO: Refactor fetching
@@ -20,9 +18,12 @@ export default function Home() {
   const [selectedGenres, setSelectedGenres] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [selectedMovie, setSelectedMovie] = useState<number | null>(null);
 
   useEffect(() => {
-    fetch(`${BASE_URL}/genre/movie/list?api_key=${API_KEY}`)
+    fetch(
+      `${process.env.NEXT_PUBLIC_BASE_URL}/genre/movie/list?api_key=${process.env.NEXT_PUBLIC_API_KEY}`,
+    )
       .then((res) => res.json())
       .then((data) => setGenres(data.genres));
   }, []);
@@ -35,7 +36,7 @@ export default function Home() {
     const pageQuery = `&page=${page}`;
 
     fetch(
-      `${BASE_URL}/discover/movie?api_key=${API_KEY}${genreQuery}${ratingQuery}${pageQuery}&include_adult=false`,
+      `${process.env.NEXT_PUBLIC_BASE_URL}/discover/movie?api_key=${process.env.NEXT_PUBLIC_API_KEY}${genreQuery}${ratingQuery}${pageQuery}&include_adult=false`,
     )
       .then((res) => res.json())
       .then((data) => {
@@ -61,8 +62,15 @@ export default function Home() {
   console.log(movies);
   console.log(genres);
 
+  const closeModal = () => {
+    setSelectedMovie(null);
+  };
+
   return (
     <div className="container mx-auto py-4 flex flex-col gap-4">
+      {selectedMovie && (
+        <MovieDetailsDialog onClose={closeModal} movieId={selectedMovie} />
+      )}
       <h3>Filter by genres</h3>
       <div className={"flex flex-wrap gap-4"}>
         {(genres || []).map((genre) => (
@@ -90,7 +98,11 @@ export default function Home() {
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {movies.map((movie) => (
-              <MovieCard movie={movie} key={movie.id} />
+              <MovieCard
+                movie={movie}
+                key={movie.id}
+                onClick={() => setSelectedMovie(movie.id)}
+              />
             ))}
           </div>
         )}
