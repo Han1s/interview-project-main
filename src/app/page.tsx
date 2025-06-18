@@ -18,18 +18,8 @@ export default function Home() {
   const [genres, setGenres] = useState<any[] | null>(null);
   const [minRating, setMinRating] = useState<string>("0");
   const [selectedGenres, setSelectedGenres] = useState([]);
-
-  useEffect(() => {
-    const fetchMovies = async () => {
-      const response = await fetch(
-        `${BASE_URL}/discover/movie?api_key=${API_KEY}&include_adult=false`,
-      );
-      const data = await response.json();
-      setMovies(data.results);
-    };
-
-    fetchMovies().then();
-  }, []);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
     fetch(`${BASE_URL}/genre/movie/list?api_key=${API_KEY}`)
@@ -41,15 +31,18 @@ export default function Home() {
     const genreQuery = selectedGenres.length
       ? `&with_genres=${selectedGenres.join(",")}`
       : "";
-
     const ratingQuery = `&vote_average.gte=${minRating}`;
+    const pageQuery = `&page=${page}`;
 
     fetch(
-      `${BASE_URL}/discover/movie?api_key=${API_KEY}${genreQuery}${ratingQuery}`,
+      `${BASE_URL}/discover/movie?api_key=${API_KEY}${genreQuery}${ratingQuery}${pageQuery}&include_adult=false`,
     )
       .then((res) => res.json())
-      .then((data) => setMovies(data.results));
-  }, [selectedGenres, minRating]);
+      .then((data) => {
+        setMovies(data.results);
+        setTotalPages(data.total_pages);
+      });
+  }, [selectedGenres, minRating, page]);
 
   const toggleGenre = (genreId) => {
     setSelectedGenres((prev) =>
@@ -57,6 +50,12 @@ export default function Home() {
         ? prev.filter((id) => id !== genreId)
         : [...prev, genreId],
     );
+    setPage(1);
+  };
+
+  const handleRatingChange = (value: string) => {
+    setMinRating(value);
+    setPage(1);
   };
 
   console.log(movies);
@@ -65,8 +64,7 @@ export default function Home() {
   return (
     <div className="container mx-auto py-4 flex flex-col gap-4">
       <h3>Filter by genres</h3>
-      {/* Your content here */}
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
+      <div className={"flex flex-wrap gap-4"}>
         {(genres || []).map((genre) => (
           <label key={genre.id}>
             <input
@@ -83,7 +81,7 @@ export default function Home() {
       <div>
         <h3>Filter by minimum rating</h3>
         <div>
-          <RatingFilter onChange={setMinRating} value={minRating} />
+          <RatingFilter onChange={handleRatingChange} value={minRating} />
         </div>
       </div>
       <div>
@@ -96,6 +94,26 @@ export default function Home() {
             ))}
           </div>
         )}
+      </div>
+
+      <div className={"w-full mx-auto text-center"}>
+        <button
+          className="btn btn-outline mr-2"
+          disabled={page === 1}
+          onClick={() => setPage((p) => p - 1)}
+        >
+          ⬅ Previous
+        </button>
+        <span>
+          Page {page} of {totalPages}
+        </span>
+        <button
+          className="btn btn-outline ml-2"
+          disabled={page === totalPages}
+          onClick={() => setPage((p) => p + 1)}
+        >
+          Next ➡
+        </button>
       </div>
     </div>
   );
