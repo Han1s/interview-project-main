@@ -1,63 +1,39 @@
+"use client";
 
-import Image from "next/image";
 import { useEffect, useState } from "react";
+
+const BASE_URL = "https://api.themoviedb.org/3";
+const API_KEY = process.env.NEXT_PUBLIC_API_KEY;
 
 export default function Home() {
   const [movies, setMovies] = useState<any[] | null>(null);
+  const [genres, setGenres] = useState<any[] | null>(null);
 
   useEffect(() => {
     const fetchMovies = async () => {
-        const newMovies = [];
-        
-          const response = await fetch(`https://api.themoviedb.org/3/discover/movie?api_key=5118448f0df78266f8f992a2967ddfd1&include_adult=false`);
-          const data = response.json();
-          //@ts-ignore
-          setMovies(data.results);
+      const response = await fetch(
+        `${BASE_URL}/discover/movie?api_key=${API_KEY}&include_adult=false`,
+      );
+      const data = await response.json();
+      setMovies(data.results);
     };
-    
-    fetchMovies();
+
+    fetchMovies().then();
   }, []);
 
+  useEffect(() => {
+    fetch(`${BASE_URL}/genre/movie/list?api_key=${API_KEY}`)
+      .then((res) => res.json())
+      .then((data) => setGenres(data.genres));
+  }, []);
+
+  console.log(movies);
+  console.log(genres);
+
   return (
-    <div style={{ 
-      padding: "20px",
-      maxWidth: "1200px",
-      margin: "0 auto",
-      backgroundColor: "#111",
-      minHeight: "100vh",
-      color: "white"
-    }}>
-      
-      <div style={{ 
-        display: "flex", 
-        flexDirection: "column", 
-        gap: "30px",
-        width: "100%" 
-      }}>
-        {movies && movies.map((movie, index) => (
-          <div 
-            key={movie.id || index} 
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              padding: "15px",
-              borderRadius: "8px",
-              backgroundColor: "#222",
-              boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)"
-            }}
-          >
-            <h2 style={{ marginBottom: "15px" }}>{movie.title}</h2>
-            {movie.backdrop_path && (
-              <div style={{ position: "relative", height: "250px", width: "100%" }}>
-                <img
-                  src={`https://image.tmdb.org/t/p/w500/${movie.backdrop_path}`}
-                  
-                />
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
+    <div className="container mx-auto py-4">
+      {/* Your content here */}
+      <p>Hello world</p>
     </div>
   );
 }
